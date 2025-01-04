@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { TodoItem } from "./TodoItem";
 import { useState } from "react";
 
@@ -15,6 +15,40 @@ export const Todo = () => {
       isComplete: true,
     },
   ]);
+    const inputRef= useRef()
+// add task
+    const addTask = () => {
+      const inputText = inputRef.current.value.trim();
+      if (inputText === "") 
+       {
+        return null;
+       }
+       const newTask = {
+        id: Date.now(),
+        text: inputText,
+        isComplete: false,
+       }
+        SetTodoList([...todoList, newTask]);
+        inputRef.current.value="";
+    };
+
+    const completeStatus = (id) => {
+      SetTodoList((prev)=> {
+        return prev.map((todo) => {
+          if (todo.id === id) {
+            return { ...todo, isComplete: !todo.isComplete };
+          }
+          return todo;
+        });
+      });
+    };
+
+    const removeElement = (id) => {
+      SetTodoList((prev) => {
+        return prev.filter((todo) => todo.id !== id);
+      });
+    };
+
   return (
     <>
       <div className="w-[30-rem]">
@@ -26,10 +60,11 @@ export const Todo = () => {
               name=""
               id=""
               placeholder="Add Your Task"
+              ref={inputRef}
               className="px-3 py-4 w-full text-sm border focus:outline-none focus:border-blue-400"
             />
           </div>
-          <button className="py-3 px-4 bg-blue-600 text-white hover:bg-blue-700 font-medium rounded-sm border-none ">
+          <button onClick={addTask} className="py-3 px-4 bg-blue-600 text-white hover:bg-blue-700 font-medium rounded-sm border-none ">
             Add Task
           </button>
         </div>
@@ -39,13 +74,15 @@ export const Todo = () => {
         <fieldset>
           <legend className="text-green-500 font-medium">List of task</legend>
           {todoList.length !== 0 ? (
-            todoList.map((todo, index) => {
+            todoList.map(( todo,  index ) =>{
               return (
                 <TodoItem
                   text={todo.text}
                   key={index}
                   id={todo.id}
                   isComplete={todo.isComplete}
+                  completeStatus={completeStatus}
+                  removeElement={removeElement}
                 />
               );
             })
